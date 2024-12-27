@@ -12,5 +12,6 @@ use App\Http\Controllers\Api\TagController;
 })->middleware('auth:sanctum'); */
 
 Route::apiResource('categories', CategoryController::class);
+//Route::get('categories/{id}', [CategoryController::class, 'show']);
 Route::apiResource('recipes', RecipeController::class);
 Route::apiResource('tags', TagController::class);
