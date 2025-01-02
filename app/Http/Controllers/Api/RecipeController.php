@@ -11,7 +11,8 @@ class RecipeController extends Controller
 {
     public function index()
     {
-        return RecipeResource::collection(Recipe::with('category', 'tags', 'user')->get());
+        $recipes = Recipe::with('category', 'tags', 'user')->get();
+        return RecipeResource::collection($recipes);
     }
 
     public function show(Recipe $recipe)
