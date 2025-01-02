@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Recipe;
 use App\Http\Resources\RecipeResource;
+use Symfony\Component\HttpFoundation\Response;
 
 class RecipeController extends Controller
 {
@@ -23,38 +24,26 @@ class RecipeController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required',
-            'category_id' => 'required',
-            'user_id' => 'required',
-            'description' => 'required',
-            'ingredients' => 'required',
-            'instructions' => 'required',
-        ]);
-
-        return Recipe::create($request->all());
+        $recipe = Recipe::create($request->all());
+        if($tags = json_decode($request->tags, true)) {
+            $recipe->tags()->attach($tags);
+        }
+        return response()->json(new RecipeResource($recipe), Response::HTTP_CREATED);
     }
 
-    public function update(Request $request, Recipe $id)
+    public function update(Request $request, Recipe $recipe)
     {
-        $request->validate([
-            'title' => 'required',
-            'category_id' => 'required',
-            'user_id' => 'required',
-            'description' => 'required',
-            'ingredients' => 'required',
-            'instructions' => 'required',
-        ]);
-
-        $id->update($request->all());
-
-        return $id;
+        $recipe->update($request->all());
+        if($tags = json_decode($request->tags, true)) {
+            $recipe->tags()->sync($tags);
+        }
+        return response()->json(new RecipeResource($recipe), Response::HTTP_OK);
     }
 
-    public function destroy(Recipe $id)
+    public function destroy(Recipe $recipe)
     {
-        $id->delete();
+        $recipe->delete();
 
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }
