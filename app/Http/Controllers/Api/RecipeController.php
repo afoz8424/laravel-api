@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Recipe;
 use App\Http\Resources\RecipeResource;
 use Symfony\Component\HttpFoundation\Response;
-
+use App\Http\Requests\StoreRecipeRequest;
+use App\Http\Requests\UpdateRecipeRequest;
 class RecipeController extends Controller
 {
     public function index()
@@ -22,16 +23,16 @@ class RecipeController extends Controller
         return new RecipeResource($recipe);
     }
 
-    public function store(Request $request)
+    public function store(StoreRecipeRequest $request)
     {
         $recipe = Recipe::create($request->all());
-        if($tags = json_decode($request->tags, true)) {
+        if ($tags = json_decode($request->tags, true)) {
             $recipe->tags()->attach($tags);
         }
         return response()->json(new RecipeResource($recipe), Response::HTTP_CREATED);
     }
 
-    public function update(Request $request, Recipe $recipe)
+    public function update(UpdateRecipeRequest $request, Recipe $recipe)
     {
         $recipe->update($request->all());
         if($tags = json_decode($request->tags, true)) {
@@ -40,10 +41,18 @@ class RecipeController extends Controller
         return response()->json(new RecipeResource($recipe), Response::HTTP_OK);
     }
 
-    public function destroy(Recipe $recipe)
+    public function destroy($id)
     {
-        $recipe->delete();
+        $recipe = Recipe::find($id);
+        
+        if (!$recipe) {
+            return response()->json([
+                'message' => 'No se pudo eliminar la receta',
+                'error' => 'La receta no existe'
+            ], Response::HTTP_NOT_FOUND);
+        }
 
+        $recipe->delete();
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }
