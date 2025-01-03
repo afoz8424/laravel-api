@@ -10,7 +10,7 @@ class Recipe extends Model
     /** @use HasFactory<\Database\Factories\RecipeFactory> */
     use HasFactory;
 
-    protected $fillable = ['title', 'category_id', 'user_id', 'description', 'ingredients', 'instructions', 'image'];
+    protected $fillable = ['title', 'category_id', 'description', 'ingredients', 'instructions', 'image'];
 
     public function tags ()
     {
