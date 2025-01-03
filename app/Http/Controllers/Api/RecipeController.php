@@ -9,8 +9,12 @@ use App\Http\Resources\RecipeResource;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 class RecipeController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index()
     {
         $recipes = Recipe::with('category', 'tags', 'user')->get();
@@ -34,6 +38,7 @@ class RecipeController extends Controller
 
     public function update(UpdateRecipeRequest $request, Recipe $recipe)
     {
+        $this->authorize('update', $recipe);
         $recipe->update($request->all());
         if($tags = json_decode($request->tags, true)) {
             $recipe->tags()->sync($tags);
@@ -44,7 +49,7 @@ class RecipeController extends Controller
     public function destroy($id)
     {
         $recipe = Recipe::find($id);
-        
+        $this->authorize('delete', $recipe);
         if (!$recipe) {
             return response()->json([
                 'message' => 'No se pudo eliminar la receta',
